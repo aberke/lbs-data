@@ -1,0 +1,1 @@
+{"rnn_layers": 3, "rnn_size": 128, "rnn_bidirectional": true, "max_length": 50, "max_words": 10000, "dim_embeddings": 128, "word_level": true, "single_text": false, "name": "synthetic_trajectories"}
