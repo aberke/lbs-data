@@ -9,7 +9,7 @@
 
 Then things like...
 
-- home_work : to compare dataset to population estimates
+- infer_home : to compare dataset to population estimates
 - trajectory synthesis
 
 
