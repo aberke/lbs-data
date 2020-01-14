@@ -4,6 +4,7 @@ python generator.py
 """
 
 import os
+from datetime import datetime
 import json
 import textgenrnn
 
@@ -116,12 +117,16 @@ prefixes_to_counts_dict = get_prefixes_to_counts_dict()
 # generate with a variety of temperatures
 for temperature in generate_temperatures:
     output_fname = get_output_filename(temperature)
-    print('generating trajectories and saving to file: %s' % output_fname)
+    print('%s : generating trajectories and saving to file: %s' % (datetime.now(), output_fname))
     sequences = []
+    i = 0
     for prefix_labels, count in prefixes_to_counts_dict.items():
         # Add an extra space so that the work prefix label has proper end and model continues to next label
         prefix = '%s ' % prefix_labels
         sequences += generate_sequences(temperature, prefix, make_num=count)
+        if i % 100 == 0:
+            print('%s : %s : generated %s sequences...' % (datetime.now(), i, len(sequences)))
+        i += 1
     with open(output_fname, 'w') as f:
         for seq in sequences:
             f.write('{}\n'.format(seq))
