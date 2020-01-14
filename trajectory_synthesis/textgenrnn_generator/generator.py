@@ -4,7 +4,7 @@ python generator.py
 """
 
 import os
-from datetime import datetime
+import json
 import textgenrnn
 
 
@@ -15,24 +15,56 @@ if not USE_GPU:
     os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
 
-NUM_EPOCHS = 50  # set higher to train the model for longer
-GEN_EPOCHS = 25  # generates sample text from model after given number of epochs
+# set higher to train the model for longer
+NUM_EPOCHS = 1 #50
+# generates sample text from model after given number of epochs
+# setting higher than num_epochs to avoid generating samples mid-way
+GEN_EPOCHS = NUM_EPOCHS + 1
+# consider text both forwards and backward, can give a training boost
+RNN_BIDIRECTIONAL = True
+# maximum number of words to model; the rest will be ignored (word-level model only)
+MAX_WORDS = 10000
+
+# parameters I experiment with tweaking...
+# number of tokens to consider before predicting the next (20-40 for characters, 5-10 for words recommended)
+MAX_LENGTH = 50
 RNN_LAYERS = 3  # number of LSTM layers (>=2 recommended)
 RNN_SIZE = 128   # number of LSTM cells of each layer (128/256 recommended)
 DROPOUT = 0.1  # ignore a random proportion of source tokens each epoch, allowing model to generalize better
-RNN_BIDIRECTIONAL = True  # consider text both forwards and backward, can give a training boost
 DIM_EMBEDDINGS = 128
 
-MAX_LENGTH = 50   # number of tokens to consider before predicting the next (20-40 for characters, 5-10 for words recommended)
-MAX_WORDS = 10000  # maximum number of words to model; the rest will be ignored (word-level model only)
 
 
-input_filename = '../data/relabeled_trajectories_1_workweek.txt'
+# Training data is the relabeled trajectories
+input_trajectories_filename = '../data/relabeled_trajectories_1_workweek.txt'
 
-textgen = textgenrnn.textgenrnn(name='synthetic_trajectories')
+# The trained model generates synthetic trajectories where the (home, work) label pairs are
+# used as prefixes to produce the remainder of the trajectory.
+# In order to better compare the generated data to the real data, we generate 1 trajectory with
+# a given (home, work) label pair for each occurance of such a pair in the real (training) data.
+# For efficiency, the mapping of (home, work) label pairs to count is precomputed and saved to the
+# following file.  The generator model reads the mapping of (home, work) -> count after
+# the model is trained in order to generate trajectories with the count for each pair as the number
+# of times to use that pair as a prefix.
+input_trajectories_prefixes_to_counts_filename = '../data/relabeled_trajectories_1_workweek_prefixes_to_counts.json'
+
+generate_temperatures = [0.8, 0.9, 1.0]
+
+name = 'trajectories-max_len:{}-rnn_layers:{}-rnn_size:{}-dropout:{}-dim_embeddings:{}'.format(
+    MAX_LENGTH, RNN_LAYERS, RNN_SIZE, DROPOUT, DIM_EMBEDDINGS)
+
+print('\ntraining model with %s epochs: %s\n' % (NUM_EPOCHS, name))
+
+def get_output_filename(temperature):
+    return './output/generated-{}-temperature:{}.txt'.format(name, temperature)
+
+print('\nwill generate trajectories for temperatures %s and output to files %s\n' % (generate_temperatures, [get_output_filename(t) for t in generate_temperatures]))
+
+
+textgen = textgenrnn.textgenrnn(name=name)
 
 textgen.train_from_file(
-    file_path=input_filename,
+    file_path=input_trajectories_filename,
     new_model=True,
     num_epochs=NUM_EPOCHS,
     gen_epochs=GEN_EPOCHS,
@@ -53,27 +85,43 @@ textgen.train_from_file(
 # and then filter them to desired length
 
 seq_length = 122
-N = 1000  # make this many
+
 
 def filter_to_seq_length(sequences):
     return [seq for seq in sequences if (len(seq.split()) == seq_length)]
 
-def generate_sequences(temperature, n, prefix=None):
-    ss = textgenrnn.utils.synthesize([textgen], n, prefix=prefix, temperature=[temperature],
-                                 return_as_list=True, max_gen_length=seq_length+1, stop_tokens=['hack'])
-    return filter_to_seq_length(ss)
+def generate_sequences(temperature, prefix, make_num=100):
+    # Current problem: not always getting desired sequence length (TODO: fork and hack on textgenrnn code to fix this)
+    # Solution for now: loop to hack around this
+    ss = []
+    while len(ss) < make_num:
+        n = (make_num - len(ss))*2
+        generated_sequences = textgenrnn.utils.synthesize(
+            [generator], n, prefix=prefix, temperature=[temperature],
+            return_as_list=True, max_gen_length=seq_length+1, stop_tokens=['hack'])
+        ss += filter_to_seq_length(generated_sequences)
+    return ss[:make_num]
 
 
-def get_output_filename(temperature, prefix=None):
-    return './output/generated-epochs:{}:{}-temperature:{}-prefix:{}-{}.txt'.format(
-        NUM_EPOCHS, GEN_EPOCHS, temperature, prefix, datetime.now().strftime('%Y%m%d'))
+# Generate the sequences!
 
+# Read in the mapping of (home, work) label pairs -> count
+def get_prefixes_to_counts_dict():
+    prefixes_to_counts_dict = None
+    with open(input_trajectories_prefixes_to_counts_filename) as json_file:
+        prefixes_to_counts_dict = json.load(json_file)
+
+prefixes_to_counts_dict = get_prefixes_to_counts_dict()
 
 # generate with a variety of temperatures
-for temp in [0.8, 0.9, 1.0]:
-    output_fname = get_output_filename(temp)
-    print('using input file', input_filename, 'generating to ', output_fname)
-    sequences = generate_sequences(temp, N)
+for temperature in generate_temperatures:
+    output_fname = get_output_filename(temperature)
+    print('generating trajectories and saving to file: %s' % output_fname)
+    sequences = []
+    for prefix_labels, count in prefixes_to_counts_dict.items():
+        # Add an extra space so that the work prefix label has proper end and model continues to next label
+        prefix = '%s ' % prefix_labels
+        sequences += generate_sequences(temperature, prefix, make_num=count)
     with open(output_fname, 'w') as f:
         for seq in sequences:
             f.write('{}\n'.format(seq))
