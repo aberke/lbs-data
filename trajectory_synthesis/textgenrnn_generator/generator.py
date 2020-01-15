@@ -17,7 +17,7 @@ if not USE_GPU:
 
 
 # set higher to train the model for longer
-NUM_EPOCHS = 1 #50
+NUM_EPOCHS = 80
 # generates sample text from model after given number of epochs
 # setting higher than num_epochs to avoid generating samples mid-way
 GEN_EPOCHS = NUM_EPOCHS + 1
@@ -28,11 +28,14 @@ MAX_WORDS = 10000
 
 # parameters I experiment with tweaking...
 # number of tokens to consider before predicting the next (20-40 for characters, 5-10 for words recommended)
-MAX_LENGTH = 50
-RNN_LAYERS = 3  # number of LSTM layers (>=2 recommended)
-RNN_SIZE = 128   # number of LSTM cells of each layer (128/256 recommended)
-DROPOUT = 0.1  # ignore a random proportion of source tokens each epoch, allowing model to generalize better
-DIM_EMBEDDINGS = 128
+MAX_LENGTH = # 24, 48
+RNN_LAYERS = # 2, 3 # number of LSTM layers (>=2 recommended)
+RNN_SIZE = # 128, 256   # number of LSTM cells of each layer (128/256 recommended)
+DROPOUT = # 0.1, 0.2  # ignore a random proportion of source tokens each epoch, allowing model to generalize better
+DIM_EMBEDDINGS = # 50, 100
+
+# training models with the following combinations:
+# https://docs.google.com/spreadsheets/d/1XK79VPjp1dqGW6kZUNDHMY_-SiJwKjP3J8OxblNQFcQ/edit?usp=sharing
 
 
 
@@ -69,7 +72,7 @@ textgen.train_from_file(
     new_model=True,
     num_epochs=NUM_EPOCHS,
     gen_epochs=GEN_EPOCHS,
-    batch_size=1024,
+    batch_size=512,
     train_size=1, # proportion of input data to train on: setting < 1.0 limits model from learning perfectly
     dropout=DROPOUT,
     validation=False,
