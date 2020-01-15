@@ -98,7 +98,7 @@ def generate_sequences(temperature, prefix, make_num=100):
     while len(ss) < make_num:
         n = (make_num - len(ss))*2
         generated_sequences = textgenrnn.utils.synthesize(
-            [generator], n, prefix=prefix, temperature=[temperature],
+            [textgen], n, prefix=prefix, temperature=[temperature],
             return_as_list=True, max_gen_length=seq_length+1, stop_tokens=['hack'])
         ss += filter_to_seq_length(generated_sequences)
     return ss[:make_num]
@@ -111,6 +111,7 @@ def get_prefixes_to_counts_dict():
     prefixes_to_counts_dict = None
     with open(input_trajectories_prefixes_to_counts_filename) as json_file:
         prefixes_to_counts_dict = json.load(json_file)
+    return prefixes_to_counts_dict
 
 prefixes_to_counts_dict = get_prefixes_to_counts_dict()
 
@@ -121,12 +122,13 @@ for temperature in generate_temperatures:
     sequences = []
     i = 0
     for prefix_labels, count in prefixes_to_counts_dict.items():
-        # Add an extra space so that the work prefix label has proper end and model continues to next label
-        prefix = '%s ' % prefix_labels
-        sequences += generate_sequences(temperature, prefix, make_num=count)
         if i % 100 == 0:
             print('%s : %s : generated %s sequences...' % (datetime.now(), i, len(sequences)))
         i += 1
+        
+        # Add an extra space so that the work prefix label has proper end and model continues to next label
+        prefix = '%s ' % prefix_labels
+        sequences += generate_sequences(temperature, prefix, make_num=count)
     with open(output_fname, 'w') as f:
         for seq in sequences:
             f.write('{}\n'.format(seq))
