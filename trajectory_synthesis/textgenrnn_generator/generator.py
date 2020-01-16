@@ -21,13 +21,13 @@ NUM_EPOCHS = 80
 # generates sample text from model after given number of epochs
 # setting higher than num_epochs to avoid generating samples mid-way
 GEN_EPOCHS = NUM_EPOCHS + 1
-# consider text both forwards and backward, can give a training boost
-RNN_BIDIRECTIONAL = True
 # maximum number of words to model; the rest will be ignored (word-level model only)
 MAX_WORDS = 10000
 
 # parameters I experiment with tweaking...
 # number of tokens to consider before predicting the next (20-40 for characters, 5-10 for words recommended)
+# consider text both forwards and backward, can give a training boost
+RNN_BIDIRECTIONAL = # True, False
 MAX_LENGTH = # 24, 48
 RNN_LAYERS = # 2, 3 # number of LSTM layers (>=2 recommended)
 RNN_SIZE = # 128, 256   # number of LSTM cells of each layer (128/256 recommended)
@@ -54,8 +54,8 @@ input_trajectories_prefixes_to_counts_filename = '../data/relabeled_trajectories
 
 generate_temperatures = [0.8, 0.9, 1.0]
 
-name = 'trajectories-max_len:{}-rnn_layers:{}-rnn_size:{}-dropout:{}-dim_embeddings:{}'.format(
-    MAX_LENGTH, RNN_LAYERS, RNN_SIZE, DROPOUT, DIM_EMBEDDINGS)
+name = 'trajectories-rnn_bidirectional:{}-max_len:{}-rnn_layers:{}-rnn_size:{}-dropout:{}-dim_embeddings:{}'.format(
+    RNN_BIDIRECTIONAL, MAX_LENGTH, RNN_LAYERS, RNN_SIZE, DROPOUT, DIM_EMBEDDINGS)
 
 print('\ntraining model with %s epochs: %s\n' % (NUM_EPOCHS, name))
 
