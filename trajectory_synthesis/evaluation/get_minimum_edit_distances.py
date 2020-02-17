@@ -3,7 +3,13 @@ python get_minimum_edit_distances.py
 
 Run remote as:
 
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances.out 2> get_minimum_edit_distances.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_5.out 2> get_minimum_edit_distances_5.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_8.out 2> get_minimum_edit_distances_8.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_8.out 2> get_minimum_edit_distances_8.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_10.out 2> get_minimum_edit_distances_10.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_13.out 2> get_minimum_edit_distances_13.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_15.out 2> get_minimum_edit_distances_15.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_18.out 2> get_minimum_edit_distances_18.err < /dev/null &
 
 
 Compare trajectories using edit distance as a metric,
@@ -222,41 +228,45 @@ real_trajectories = read_trajectories_from_file(relabeled_trajectories_filename)
 # Do the same for the generated samples
 
 generated_sample_names = [
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9'
-        ,
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0'
-        ,
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.8'
-        ,
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.9'
-        ,
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9'
-        ,
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.0'
-        ,
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1'
-        ,
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1'
-        ,
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0'
-        ,
-    'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1'
-        ,
-    ]
-
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.8',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.9',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.0',
+	# 10
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:0.8',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:0.9',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.0',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.1',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.8',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.8',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.0',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:0.9',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.9',
+	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.2',
+	# 21
+]
 
 
 for i, generated_sample_name in enumerate(generated_sample_names):
-    print('%s : getting the min edit distances for %s' % (i, generated_sample_name))
-    generated_sample_filename = get_generated_trajectories_filename(generated_sample_name)
-    generated_trajectories = read_trajectories_from_file(generated_sample_filename)
-    print('read %s trajectories from filename %s' % (len(generated_trajectories), generated_sample_filename))
-    # Get the min edit distances lists and write them to file
-    generated_sample_min_edit_distances_list = get_min_edit_distances_list(generated_trajectories, non_unique_prefix_set, real_trajectories)
-    generated_sample_min_edit_distances_filename = get_min_edit_distances_filename(generated_sample_name)
-    print('writing min edit distances to file %s...' % generated_sample_min_edit_distances_filename)
-    write_min_edit_distances_to_file(generated_sample_min_edit_distances_list, generated_sample_min_edit_distances_filename)
-    print('...wrote min edit distances to file %s' % generated_sample_min_edit_distances_filename)
+	if i < 18: # 18, 15, 13, 10, 8, 5:
+		continue
+	print('%s : getting the min edit distances for %s' % (i, generated_sample_name))
+	generated_sample_filename = get_generated_trajectories_filename(generated_sample_name)
+	generated_trajectories = read_trajectories_from_file(generated_sample_filename)
+	print('read %s trajectories from filename %s' % (len(generated_trajectories), generated_sample_filename))
+	# Get the min edit distances lists and write them to file
+	generated_sample_min_edit_distances_list = get_min_edit_distances_list(generated_trajectories, non_unique_prefix_set, real_trajectories)
+	generated_sample_min_edit_distances_filename = get_min_edit_distances_filename(generated_sample_name)
+	print('writing min edit distances to file %s...' % generated_sample_min_edit_distances_filename)
+	write_min_edit_distances_to_file(generated_sample_min_edit_distances_list, generated_sample_min_edit_distances_filename)
+	print('...wrote min edit distances to file %s' % generated_sample_min_edit_distances_filename)
 
 print('...and done')
 
