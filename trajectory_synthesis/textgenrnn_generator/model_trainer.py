@@ -15,26 +15,34 @@ if not USE_GPU:
 
 
 # set higher to train the model for longer
-NUM_EPOCHS = 75
+NUM_EPOCHS = 50
 # generates sample text from model after given number of epochs
 # setting higher than num_epochs to avoid generating samples mid-way
 GEN_EPOCHS = NUM_EPOCHS + 1
 # maximum number of words to model; the rest will be ignored (word-level model only)
 MAX_WORDS = 10000
 
-# parameters I experiment with tweaking...
-# number of tokens to consider before predicting the next (20-40 for characters, 5-10 for words recommended)
+
+# --------------------------------------
+# Parameters I experiment with tweaking
+# The output model files and generated trajectories are named by the
+# parameters used in their model training and generation
+
 # consider text both forwards and backward, can give a training boost
 RNN_BIDIRECTIONAL = # True, False
-MAX_LENGTH = # 24, 48
-RNN_LAYERS = # 2, 3 # number of LSTM layers (>=2 recommended)
-RNN_SIZE = # 128, 256   # number of LSTM cells of each layer (128/256 recommended)
-DROPOUT = # 0.1, 0.2  # ignore a random proportion of source tokens each epoch, allowing model to generalize better
-DIM_EMBEDDINGS = # 50, 100
+# number of tokens to consider before predicting the next
+MAX_LENGTH = # 24, 48, 50, 60, 70, 72
+# number of LSTM layers
+RNN_LAYERS = # 2, 3 
+# number of LSTM cells of each layer (128/256 recommended)
+RNN_SIZE = # 128, 256
+# ignore a random proportion of source tokens each epoch, allowing model to generalize better
+DROPOUT = # 0.1, 0.2, 0.3, 0.4
+DIM_EMBEDDINGS = # 50, 100, 128
 
-# training models with the following combinations:
+# trained models with the following combinations:
 # https://docs.google.com/spreadsheets/d/1XK79VPjp1dqGW6kZUNDHMY_-SiJwKjP3J8OxblNQFcQ/edit?usp=sharing
-
+# --------------------------------------
 
 
 # Training data is the relabeled trajectories
