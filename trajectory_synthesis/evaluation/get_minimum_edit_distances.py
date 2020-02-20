@@ -3,13 +3,7 @@ python get_minimum_edit_distances.py
 
 Run remote as:
 
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_5.out 2> get_minimum_edit_distances_5.err < /dev/null &
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_8.out 2> get_minimum_edit_distances_8.err < /dev/null &
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_8.out 2> get_minimum_edit_distances_8.err < /dev/null &
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_10.out 2> get_minimum_edit_distances_10.err < /dev/null &
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_13.out 2> get_minimum_edit_distances_13.err < /dev/null &
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_15.out 2> get_minimum_edit_distances_15.err < /dev/null &
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_18.out 2> get_minimum_edit_distances_18.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances.out 2> get_minimum_edit_distances.err < /dev/null &
 
 
 Compare trajectories using edit distance as a metric,
@@ -28,6 +22,7 @@ if not USE_GPU:
     import os
     os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
+
 # The file reading and writing utilities:
 def get_generated_trajectories_filename(sample_name):
     return '../textgenrnn_generator/output/{}.txt'.format(sample_name)
@@ -35,7 +30,8 @@ def get_generated_trajectories_filename(sample_name):
 def read_trajectories_from_file(filename):
     """
     Returns a list of lists, where each list represents a trajectory written to file.
-    Expects file format where each line is one trajectory, and places in the trajectory are delimited by spaces.
+    Expects file format where each line is one trajectory,
+    and places in the trajectory are delimited by spaces.
     """
     trajectories = []
     with open(filename, 'r') as f:
@@ -72,7 +68,8 @@ def get_unprefixed_vectors(prefixed_vectors):
 # Implementation of levenshtein distance:
 def levenshtein_distance(s1, s2):
     """
-    Returns (int) the levenshtein edit distance between two lists, where those lists can be arbitrary integers.
+    Returns (int) the levenshtein edit distance between two lists,
+    where those lists can be arbitrary integers.
     """
     if len(s1) < len(s2):
         return levenshtein(s2, s1)
@@ -145,6 +142,7 @@ test_vectors = [[random.randint(0, 652) for iter in range(120)] for i in range(2
 assert(sum(get_min_edit_distances(test_vectors[:2], test_vectors)) == 0)
 
 
+# For each set of vectors take random sample of this length 
 LIMIT_SAMPLE_SIZE = 200
 TRUNCATE_LEN = None
 
@@ -166,12 +164,30 @@ assert([allowed_t] == filter_to_trajectories_with_prefixes([allowed_t, not_allow
 
 def get_min_edit_distances_list(prefixed_sample_vectors, allowed_prefixes, comparison_vectors,
                                 is_real_sample=False, limit_sample_size=LIMIT_SAMPLE_SIZE):
+    """
+    Returns a list of integers representing the mininum edit distance from any of the
+    prefixed sample vectors to the comparison vectors.
+    Where edit distance is levenshtein distance
+
+    prefixed_sample_vectors: list of vectors to compare to comparison_vectors
+    allowed_prefixes: Only vectors prefixed with one of the allowed prefixes are considered.
+    	(this is to handle bias when considering the real sample)
+    comparison
+    comparison_vectors: larger list of (real) vectors to compare the sample vectors to
+    	Each sample vector is compared to each of the comparison vectors to find the minimum edit
+    	distance from each sample vector to any of the comparison vectors
+    is_real_sample: the list of prefixed_sample_vectors may be from the real data.
+    	in this case these vectors should not be checked against themselves
+    limit_sample_size: Only up to a limited sample size of the prefixed_sample_vectors are used
+    	(randomly sampled). This is done for compute time considerations.
+    """
+
     # Filter the trajectory vectors to those with allowed prefixes
     filtered_prefixed_vectors = filter_to_trajectories_with_prefixes(prefixed_sample_vectors, allowed_prefixes)
-   	# limit the sample size to maximum value, and take their random sample with that limit
+   	# take random sample of vectors limited to limit_sample_size number of vectors
     random.shuffle(filtered_prefixed_vectors)
     filtered_prefixed_vectors = filtered_prefixed_vectors[:limit_sample_size]
-    # get the unprefixed version of the vector
+    # get the unprefixed version of each of the sample vectors and each of the comparison vectors
     filtered_unprefixed_sample_vectors = get_unprefixed_vectors(filtered_prefixed_vectors)
     comparison_vectors = get_unprefixed_vectors(comparison_vectors)
     if is_real_sample:
@@ -211,18 +227,18 @@ real_trajectories = read_trajectories_from_file(relabeled_trajectories_filename)
 
 
 
-# Get the set of sampled real trajectories and compute min distances, write to file
-# real_sample_trajectories_filename = '../data/relabeled_trajectories_1_workweek_sample_2000.txt'
-# real_trajectories_sample = read_trajectories_from_file(real_sample_trajectories_filename)
-# print('getting the min edit distances for %s' % 'real_sample_2000')
-# # Get the min edit distances lists and write them to file
-# real_sample_min_edit_distances_list = get_min_edit_distances_list(real_trajectories_sample,
-#                                                                   non_unique_prefix_set,
-#                                                                   real_trajectories, is_real_sample=True)
-# real_sample_min_edit_distances_filename = get_min_edit_distances_filename('real_sample_2000')
-# print('writing min edit distances to file %s...' % real_sample_min_edit_distances_filename)
-# write_min_edit_distances_to_file(real_sample_min_edit_distances_list, real_sample_min_edit_distances_filename)
-# print('...wrote min edit distances to file %s' % real_sample_min_edit_distances_filename)
+Get the set of sampled real trajectories and compute min distances, write to file
+real_sample_trajectories_filename = '../data/relabeled_trajectories_1_workweek_sample_2000.txt'
+real_trajectories_sample = read_trajectories_from_file(real_sample_trajectories_filename)
+print('getting the min edit distances for %s' % 'real_sample_2000')
+# Get the min edit distances lists and write them to file
+real_sample_min_edit_distances_list = get_min_edit_distances_list(real_trajectories_sample,
+                                                                  non_unique_prefix_set,
+                                                                  real_trajectories, is_real_sample=True)
+real_sample_min_edit_distances_filename = get_min_edit_distances_filename('real_sample_2000')
+print('writing min edit distances to file %s...' % real_sample_min_edit_distances_filename)
+write_min_edit_distances_to_file(real_sample_min_edit_distances_list, real_sample_min_edit_distances_filename)
+print('...wrote min edit distances to file %s' % real_sample_min_edit_distances_filename)
 
 
 # Do the same for the generated samples
@@ -255,8 +271,6 @@ generated_sample_names = [
 
 
 for i, generated_sample_name in enumerate(generated_sample_names):
-	if i < 18: # 18, 15, 13, 10, 8, 5:
-		continue
 	print('%s : getting the min edit distances for %s' % (i, generated_sample_name))
 	generated_sample_filename = get_generated_trajectories_filename(generated_sample_name)
 	generated_trajectories = read_trajectories_from_file(generated_sample_filename)
