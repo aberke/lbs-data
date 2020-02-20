@@ -3,9 +3,10 @@ python generator.py
 
 """
 
-import os
 from datetime import datetime
 import json
+import os
+
 import textgenrnn
 
 
