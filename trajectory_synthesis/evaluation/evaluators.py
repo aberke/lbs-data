@@ -15,25 +15,36 @@ import unittest
 # that time interval. We can do this by looking at the geographic locations of the 
 # centroids or the boundaries of census areas. We consider two consecutive stay locations 
 # in a stay vector sequence as a bigram, and must verify that each bigram is sensible. 
-# It is possible for sensible bigrams in the generated data to occur that have not been seen in 
-# the training data. However, instead of verifying that all such bigrams are sensible, 
-# we have a shortcut due to how well our RNN models are fit to our training data. 
-# We are able to collect the set of bigrams in the real sequences, and the set of bigrams 
-# in the synthetic sequences, and verify that only bigrams from the real sequences occur in 
-# the synthetic sequences. If this is true, all the bigrams in our generated data must be sensible.
+#
+# To do this, we use a shortcut that exploits how well our RNN models fit 
+# the training data: 
+# We assume that any bigram that occurs in a real trajectory is sensible.  
+# Clearly if all the bigrams in the generated data have been seen in the real data,
+# then all of the bigrams are sensible.
+# We also note that if the distance from area A to area B is sensible, 
+# then so must be the distance from area B to area A.  
+# So if bigram (A, B) is sensible, then so must be its reverse (B, A).
+# We collect the set of all of the bigrams "seen" in the real trajectories. 
+# We then also collect all of the "unseen" bigrams from the generated trajectories, where these "unseen" bigrams and their reverses are not in the "seen" set.
+# TODO: handle reverses
 
 def get_bigrams_for_trajectory_vector(tv, with_skip=False):
     """
-    Returns set of tuples {(a, b) for each sequential a, b found in tv}
+    Returns set of tuples
+    {(a, b) for each sequential a, b or b, a found in tv, s.t. a < b}
+    i.e. (a, b) and (b, a) are considered the same.
+    Elements in the tuples are sorted to ensure duplicates are avoided.
     
     If with_skip is True, the set of tuples also include those where one element is skipped.
     i.e. A sequence of "A B C D" will then produce bigrams (A, B), (A, C), (B, C), (B, D), (C, D).
     """
     t_bigrams = set()
     for i in range(1, len(tv)):
-        t_bigrams.add((tv[i-1], tv[i]))
+        tup = tuple(sorted((tv[i-1], tv[i])))
+        t_bigrams.add(tup)
         if (with_skip and (i >= 2)):
-            t_bigrams.add((tv[i-2], tv[i]))
+            tup = tuple(sorted((tv[i-2], tv[i])))
+            t_bigrams.add(tup)
     return t_bigrams
 
 
@@ -60,7 +71,7 @@ def get_unseen_bigrams(bigram_set, trajectories):
 	unseen_bigram_to_count = {}
 	for trajectory in trajectories:
 		for t in range(1, len(trajectory)):
-			bigram = (trajectory[t-1], trajectory[t])
+			bigram = tuple(sorted((trajectory[t-1], trajectory[t])))
 			if bigram in bigram_set:
 				continue
 			# otherwise this is an 'unseen bigram'
@@ -71,6 +82,12 @@ def get_unseen_bigrams(bigram_set, trajectories):
 
 
 class TestBigramsForTrajectoryVectors(unittest.TestCase):
+
+	def test_get_unseen_bigrams(self):
+		bigrams = {(1,2), (2, 30)}
+		ts = [[1, 30, 2, 1, 30], [2, 1], [4, 1]]
+		unseen_bigrams = get_unseen_bigrams(bigrams, ts)
+		assert({(1,30):2, (1,4):1} == unseen_bigrams)
 
 	def test_empty(self):
 		empty_bgs0 = get_bigrams_for_trajectory_vectors([[]])
@@ -91,6 +108,15 @@ class TestBigramsForTrajectoryVectors(unittest.TestCase):
 		bgs2_5 = get_bigrams_for_trajectory_vectors(t2_5)
 		assert(len(get_unseen_bigrams(bgs2, t2_5)) > 0)
 		assert(len(get_unseen_bigrams(bgs2_5, bgs2)) == 0)
+
+	def test_reverse_bigrams(self):
+		"""
+		Bigrams (a, b) and (b, a) are the same.
+		Only (a, b) should be in the resulting set, s.t. a < b
+		"""
+		t = [4, 3, 4, 2]
+		bgs = get_bigrams_for_trajectory_vectors([t])
+		assert(bgs == {(3, 4), (2, 4)})
 
 
 
