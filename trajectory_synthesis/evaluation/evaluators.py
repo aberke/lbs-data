@@ -26,7 +26,7 @@ import unittest
 # So if bigram (A, B) is sensible, then so must be its reverse (B, A).
 # We collect the set of all of the bigrams "seen" in the real trajectories. 
 # We then also collect all of the "unseen" bigrams from the generated trajectories, where these "unseen" bigrams and their reverses are not in the "seen" set.
-# TODO: handle reverses
+
 
 def get_bigrams_for_trajectory_vector(tv, with_skip=False):
     """
