@@ -111,3 +111,11 @@ data/mount/
 
 *label_to_int_map.json
 
+# Model specific - used to iterate on model and there are many many of these produced
+trajectory_synthesis/textgenrnn_generator/generator_*
+trajectory_synthesis/textgenrnn_generator/model_trainer_*
+
+# TODO: come back and possibly commit the most successful outputs
+trajectory_synthesis/textgenrnn_generator/output/
+# TODO: remove the less successful models and commit the most successful models
+
