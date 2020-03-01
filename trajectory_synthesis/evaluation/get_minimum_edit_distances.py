@@ -4,6 +4,20 @@ python get_minimum_edit_distances.py
 Run remote as:
 
 nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances.out 2> get_minimum_edit_distances.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_real.out 2> get_minimum_edit_distances_2000_real.err < /dev/null &
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_real_11.out 2> get_minimum_edit_distances_2000_real_11.err < /dev/null &
+matlaber11 - 15747
+matlaber7 - 6213
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_0.out 2> get_minimum_edit_distances_2000_0.err < /dev/null &
+matlaber7 - 6335
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_2.out 2> get_minimum_edit_distances_2000_2.err < /dev/null &
+matlaber7 - 6533
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_4.out 2> get_minimum_edit_distances_2000_4.err < /dev/null &
+matlaber7 - 6740
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_6.out 2> get_minimum_edit_distances_2000_6.err < /dev/null &
+matlaber7 - 6870
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_8.out 2> get_minimum_edit_distances_2000_8.err < /dev/null &
+matlaber7 - 6995
 
 
 Compare trajectories using edit distance as a metric,
@@ -25,7 +39,8 @@ if not USE_GPU:
 
 # The file reading and writing utilities:
 def get_generated_trajectories_filename(sample_name):
-    return '../textgenrnn_generator/output/{}.txt'.format(sample_name)
+    # return '../textgenrnn_generator/output/{}.txt'.format(sample_name)
+    return '../textgenrnn_generator/{}.txt'.format(sample_name)
 
 def read_trajectories_from_file(filename):
     """
@@ -143,7 +158,9 @@ assert(sum(get_min_edit_distances(test_vectors[:2], test_vectors)) == 0)
 
 
 # For each set of vectors take random sample of this length 
-LIMIT_SAMPLE_SIZE = 200
+# We first experimented  with small samples.  We then did measurements for entire
+# sample of 2000
+LIMIT_SAMPLE_SIZE = None # 200
 TRUNCATE_LEN = None
 
 
@@ -172,6 +189,7 @@ def get_min_edit_distances_list(prefixed_sample_vectors, allowed_prefixes, compa
     prefixed_sample_vectors: list of vectors to compare to comparison_vectors
     allowed_prefixes: Only vectors prefixed with one of the allowed prefixes are considered.
     	(this is to handle bias when considering the real sample)
+        when this is empty, then this step is ignored.
     comparison
     comparison_vectors: larger list of (real) vectors to compare the sample vectors to
     	Each sample vector is compared to each of the comparison vectors to find the minimum edit
@@ -184,7 +202,7 @@ def get_min_edit_distances_list(prefixed_sample_vectors, allowed_prefixes, compa
 
     # Filter the trajectory vectors to those with allowed prefixes
     filtered_prefixed_vectors = filter_to_trajectories_with_prefixes(prefixed_sample_vectors, allowed_prefixes)
-   	# take random sample of vectors limited to limit_sample_size number of vectors
+   	# if limit_sample_sizetake not None, take random subsample of vectors limited to limit_sample_size number of vectors
     random.shuffle(filtered_prefixed_vectors)
     filtered_prefixed_vectors = filtered_prefixed_vectors[:limit_sample_size]
     # get the unprefixed version of each of the sample vectors and each of the comparison vectors
@@ -227,7 +245,7 @@ real_trajectories = read_trajectories_from_file(relabeled_trajectories_filename)
 
 
 
-Get the set of sampled real trajectories and compute min distances, write to file
+# Get the set of sampled real trajectories and compute min distances, write to file
 real_sample_trajectories_filename = '../data/relabeled_trajectories_1_workweek_sample_2000.txt'
 real_trajectories_sample = read_trajectories_from_file(real_sample_trajectories_filename)
 print('getting the min edit distances for %s' % 'real_sample_2000')
@@ -242,31 +260,49 @@ print('...wrote min edit distances to file %s' % real_sample_min_edit_distances_
 
 
 # Do the same for the generated samples
-
+# After initial measurements, we then did initial analysis on the best models.
 generated_sample_names = [
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.8',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.9',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.0',
-	# 10
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:0.8',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:0.9',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.0',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.1',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.8',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.8',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.0',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:0.9',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.9',
-	'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.2',
-	# 21
+    # 0
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.2',
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
+    # 2
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1',
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.1',
+    # 4
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
+    # 6
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.0',
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
+    # 8
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
+    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9'
+
+    # -----
+    # Used for initial analysis with subsample limit = 200
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.8',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.9',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.0',
+	# # 10
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:0.8',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:0.9',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.0',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.1',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.8',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.8',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.0',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:0.9',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:50-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:0.9',
+	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.2',
+	# # 21
 ]
 
 
