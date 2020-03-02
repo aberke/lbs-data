@@ -4,10 +4,7 @@ python get_minimum_edit_distances.py
 Run remote as:
 
 nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances.out 2> get_minimum_edit_distances.err < /dev/null &
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_real.out 2> get_minimum_edit_distances_2000_real.err < /dev/null &
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_real_11.out 2> get_minimum_edit_distances_2000_real_11.err < /dev/null &
-matlaber11 - 15747
-matlaber7 - 6213
+
 nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_0.out 2> get_minimum_edit_distances_2000_0.err < /dev/null &
 matlaber7 - 6335
 nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_2.out 2> get_minimum_edit_distances_2000_2.err < /dev/null &
@@ -18,6 +15,9 @@ nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_6.
 matlaber7 - 6870
 nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_8.out 2> get_minimum_edit_distances_2000_8.err < /dev/null &
 matlaber7 - 6995
+
+nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_self.out 2> get_minimum_edit_distances_2000_self.err < /dev/null &
+matlaber1 - 8812
 
 
 Compare trajectories using edit distance as a metric,
@@ -42,6 +42,10 @@ def get_generated_trajectories_filename(sample_name):
     # return '../textgenrnn_generator/output/{}.txt'.format(sample_name)
     return '../textgenrnn_generator/{}.txt'.format(sample_name)
 
+def get_regenerated_trajectories_filename(sample_name):
+    # return '../textgenrnn_generator/output/re-{}.txt'.format(sample_name)
+    return '../textgenrnn_generator/re-{}.txt'.format(sample_name)
+
 def read_trajectories_from_file(filename):
     """
     Returns a list of lists, where each list represents a trajectory written to file.
@@ -53,8 +57,8 @@ def read_trajectories_from_file(filename):
         trajectories = [[int(x) for x in line.strip().split()] for line in f]
     return trajectories
 
-def get_min_edit_distances_filename(sample_name):
-    return '../textgenrnn_generator/output/min-edit-distances-to-real-pop-from-{}.txt'.format(sample_name)
+def get_min_edit_distances_filename(sample_name, to='real'):
+    return '../textgenrnn_generator/output/min-edit-distances-to-{to}-pop-from-{sample_name}.txt'.format(sample_name=sample_name, to=to)
 
 def write_min_edit_distances_to_file(min_edit_distances_list, filename):
     with open(filename, 'w') as f:
@@ -201,8 +205,12 @@ def get_min_edit_distances_list(prefixed_sample_vectors, allowed_prefixes, compa
     """
 
     # Filter the trajectory vectors to those with allowed prefixes
-    filtered_prefixed_vectors = filter_to_trajectories_with_prefixes(prefixed_sample_vectors, allowed_prefixes)
-   	# if limit_sample_sizetake not None, take random subsample of vectors limited to limit_sample_size number of vectors
+    filtered_prefixed_vectors = prefixed_sample_vectors
+    if len(allowed_prefixes) > 0:
+        filtered_prefixed_vectors = filter_to_trajectories_with_prefixes(prefixed_sample_vectors, allowed_prefixes)
+    else:
+        print('all prefixes allowed')
+    # if limit_sample_sizetake not None, take random subsample of vectors limited to limit_sample_size number of vectors
     random.shuffle(filtered_prefixed_vectors)
     filtered_prefixed_vectors = filtered_prefixed_vectors[:limit_sample_size]
     # get the unprefixed version of each of the sample vectors and each of the comparison vectors
@@ -262,22 +270,6 @@ print('...wrote min edit distances to file %s' % real_sample_min_edit_distances_
 # Do the same for the generated samples
 # After initial measurements, we then did initial analysis on the best models.
 generated_sample_names = [
-    # 0
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.2',
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
-    # 2
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1',
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.1',
-    # 4
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
-    # 6
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.0',
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
-    # 8
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
-    # 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9'
-
     # -----
     # Used for initial analysis with subsample limit = 200
 	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
@@ -304,6 +296,23 @@ generated_sample_names = [
 	# 'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.2',
 	# # 21
 ]
+generated_sample_names = [
+    # 0
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.2',
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
+    # 2
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.2-dim_embeddings:128-temperature:1.1',
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.1',
+    # 4
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.1',
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
+    # 6
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:72-rnn_layers:2-rnn_size:256-dropout:0.3-dim_embeddings:100-temperature:1.0',
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:1.0',
+    # 8
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:60-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9',
+    'generated-sample-trajectories-rnn_bidirectional:True-max_len:70-rnn_layers:3-rnn_size:128-dropout:0.1-dim_embeddings:128-temperature:0.9'
+]
 
 
 for i, generated_sample_name in enumerate(generated_sample_names):
@@ -317,6 +326,28 @@ for i, generated_sample_name in enumerate(generated_sample_names):
 	print('writing min edit distances to file %s...' % generated_sample_min_edit_distances_filename)
 	write_min_edit_distances_to_file(generated_sample_min_edit_distances_list, generated_sample_min_edit_distances_filename)
 	print('...wrote min edit distances to file %s' % generated_sample_min_edit_distances_filename)
+
+
+
+# Then... get edit distances between original generated vs real generated
+# re-generated saved in re-{original filename}
+
+for i, generated_sample_name in enumerate(generated_sample_names):
+    print('%s : comparing %s' % (i, generated_sample_name))
+    generated_sample_filename = get_generated_trajectories_filename(generated_sample_name)
+    regenerated_sample_filename = get_regenerated_trajectories_filename(generated_sample_name)
+    generated_trajectories = read_trajectories_from_file(generated_sample_filename)
+    regenerated_trajectories = read_trajectories_from_file(regenerated_sample_filename)
+    print('read %s trajectories from filename %s' % (len(generated_trajectories), generated_sample_filename))
+    print('read %s trajectories from filename %s' % (len(regenerated_trajectories), regenerated_sample_filename))
+    # Get the min edit distances lists and write them to file
+    self_min_edit_distances_list = get_min_edit_distances_list(generated_trajectories, {}, regenerated_trajectories)
+    self_min_edit_distances_filename = get_min_edit_distances_filename(generated_sample_name, to='self')
+    print('writing min edit distances to file %s...' % self_min_edit_distances_filename)
+    write_min_edit_distances_to_file(self_min_edit_distances_list, self_min_edit_distances_filename)
+    print('...wrote min edit distances to file %s' % self_min_edit_distances_filename)
+
+
 
 print('...and done')
 
