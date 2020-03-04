@@ -5,20 +5,6 @@ Run remote as:
 
 nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances.out 2> get_minimum_edit_distances.err < /dev/null &
 
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_0.out 2> get_minimum_edit_distances_2000_0.err < /dev/null &
-matlaber7 - 6335
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_2.out 2> get_minimum_edit_distances_2000_2.err < /dev/null &
-matlaber7 - 6533
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_4.out 2> get_minimum_edit_distances_2000_4.err < /dev/null &
-matlaber7 - 6740
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_6.out 2> get_minimum_edit_distances_2000_6.err < /dev/null &
-matlaber7 - 6870
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_8.out 2> get_minimum_edit_distances_2000_8.err < /dev/null &
-matlaber7 - 6995
-
-nohup python3 get_minimum_edit_distances.py > get_minimum_edit_distances_2000_self.out 2> get_minimum_edit_distances_2000_self.err < /dev/null &
-matlaber1 - 8812
-
 
 Compare trajectories using edit distance as a metric,
 where the edit distance is the Levenshtein between the two vectors.
@@ -39,12 +25,10 @@ if not USE_GPU:
 
 # The file reading and writing utilities:
 def get_generated_trajectories_filename(sample_name):
-    # return '../textgenrnn_generator/output/{}.txt'.format(sample_name)
-    return '../textgenrnn_generator/{}.txt'.format(sample_name)
+    return '../textgenrnn_generator/output/{}.txt'.format(sample_name)
 
 def get_regenerated_trajectories_filename(sample_name):
-    # return '../textgenrnn_generator/output/re-{}.txt'.format(sample_name)
-    return '../textgenrnn_generator/re-{}.txt'.format(sample_name)
+    return '../textgenrnn_generator/output/re-{}.txt'.format(sample_name)
 
 def read_trajectories_from_file(filename):
     """
