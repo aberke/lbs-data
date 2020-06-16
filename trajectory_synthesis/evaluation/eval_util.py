@@ -56,7 +56,7 @@ def plot_trajectory_vector_frequencies(trajectory_vector, by_frequency_order=Fal
         del labels_to_frequency[0]
 
     sorted_frequencies = sorted(labels_to_frequency.values())
-    frequency_to_frequency_order = {sorted_frequencies[f]: f for f in range(len(sorted_frequencies))}
+    frequency_to_frequency_order = {sorted_frequencies[f]: f+1 for f in range(len(sorted_frequencies))}
 
     df[PLACE_LABEL_BY_FREQUENCY] = df[PLACE_LABEL].map(labels_to_frequency)
     df[PLACE_LABEL_BY_FREQUENCY_ORDER] = df[PLACE_LABEL_BY_FREQUENCY].map(frequency_to_frequency_order)
@@ -105,6 +105,8 @@ def plot_trajectory_vector_frequencies(trajectory_vector, by_frequency_order=Fal
     plt.grid(False,axis='y')
     ax.set_ylabel('Frequency')
     ax.set_xlabel('Hour')
+    # make background white
+    ax.get_figure().set_facecolor('w')
     plt.show()
 
     return df
