@@ -75,7 +75,7 @@ def levenshtein_distance(s1, s2):
     where those lists can be arbitrary integers.
     """
     if len(s1) < len(s2):
-        return levenshtein(s2, s1)
+        return levenshtein_distance(s2, s1)
     # len(s1) >= len(s2)
     if len(s2) == 0:
         return len(s1)
