@@ -91,11 +91,11 @@ def plot_trajectory_vector_frequencies(trajectory_vector, by_frequency_order=Fal
     )
     # make the y ticks integers, not floats
     yint = []
-    locs, labels = plt.yticks()
-    for y in locs:
+    ys = ax.get_yticks()
+    for y in ys:
         if y >= 0: # otherwise shows negatives too
             yint.append(int(y))
-    plt.yticks(yint)
+    ax.yaxis.set_ticks(yint)
     xhours = [24*i for i in range(1,DAYS)]
     # bad hack: adding one extra for padding
     ax.set_xlim([-1, 24*DAYS]) # otherwise changes around axes to better fit data
