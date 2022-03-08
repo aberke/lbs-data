@@ -1,5 +1,12 @@
 # lbs-data
 
+## Publication
+
+An overview of this work is described in the following paper. Please use this citation if building upon this work.
+
+Berke, A., Doorley, R., Larson, K. and Moro, E., 2022. Generating synthetic mobility data for a realistic population with RNNs to improve utility and privacy. In Proceedings of The 37th ACM/SIGAPP Symposium on Applied Computing (SAC ’22). 955-959. 
+https://doi.org/10.1145/3477314.3507230
+
 ## Motivation
 
 Location data is collected from the public by private firms via mobile devices. 
